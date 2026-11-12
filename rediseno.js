@@ -4,65 +4,6 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-  // ---------- Temas ----------
-  // Selector temporal mientras LGD elige el tema definitivo. Cada imagen con
-  // data-src-<tema> cambia su archivo al cambiar el tema (logo y esfera).
-  const THEMES = [
-    { id: 'oliva', name: 'Oliva cobre', swatch: 'linear-gradient(135deg,#283618 50%,#dda15e 50%)' },
-    { id: 'amatista', name: 'Amatista y turquesa', swatch: 'linear-gradient(135deg,#3c1642 50%,#1dd3b0 50%)' },
-  ];
-  const THEME_KEY = 'lgd-tema';
-
-  function applyThemeImages(theme) {
-    document.querySelectorAll('[data-src-' + theme + ']').forEach((img) => {
-      const src = img.getAttribute('data-src-' + theme);
-      const srcset = img.getAttribute('data-srcset-' + theme);
-      if (srcset && img.getAttribute('srcset') !== srcset) img.setAttribute('srcset', srcset);
-      if (src && img.getAttribute('src') !== src) img.setAttribute('src', src);
-    });
-  }
-
-  function setTheme(theme, persist) {
-    if (!THEMES.some((t) => t.id === theme)) theme = THEMES[0].id;
-    root.dataset.theme = theme;
-    applyThemeImages(theme);
-    document.querySelectorAll('[data-theme-option]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.themeOption === theme));
-    });
-    if (persist) {
-      try { localStorage.setItem(THEME_KEY, theme); } catch { /* sin almacenamiento */ }
-    }
-  }
-
-  function buildThemePicker() {
-    const picker = document.createElement('div');
-    picker.className = 'theme-picker';
-    picker.innerHTML =
-      '<div class="theme-options" id="theme-options" hidden><p>Vista previa de colores</p>' +
-      THEMES.map((t) => '<button type="button" data-theme-option="' + t.id + '" aria-pressed="false"><span style="background:' + t.swatch + '"></span>' + t.name + '</button>').join('') +
-      '</div><button type="button" class="theme-toggle" aria-expanded="false" aria-controls="theme-options"><i></i>Tema</button>';
-    document.body.appendChild(picker);
-    const toggle = picker.querySelector('.theme-toggle');
-    const panel = picker.querySelector('.theme-options');
-    const close = () => { panel.hidden = true; toggle.setAttribute('aria-expanded', 'false'); };
-    toggle.addEventListener('click', () => {
-      panel.hidden = !panel.hidden;
-      toggle.setAttribute('aria-expanded', String(!panel.hidden));
-    });
-    panel.addEventListener('click', (event) => {
-      const option = event.target.closest('[data-theme-option]');
-      if (!option) return;
-      setTheme(option.dataset.themeOption, true);
-      close();
-      toggle.focus();
-    });
-    document.addEventListener('click', (event) => { if (!picker.contains(event.target)) close(); });
-    document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !panel.hidden) { close(); toggle.focus(); } });
-  }
-
-  buildThemePicker();
-  setTheme(root.dataset.theme, false);
-
   // ---------- Menú móvil ----------
   const navToggle = document.querySelector('.nav-toggle');
   if (navToggle) {

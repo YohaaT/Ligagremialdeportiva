@@ -1,0 +1,37 @@
+/* Liga Gremial Deportiva — paleta oficial (amatista · teal · turquesa).
+   Fuente única de color para el sitio público, el acceso, la cuenta del afiliado y el panel.
+   Los correos replican estos valores en línea (functions/api/_email_template_editor.js). */
+:root {
+  /* Amatista: marca, cabeceras y fondos profundos */
+  --amatista-900: #220a27;
+  --amatista-800: #3c1642;
+  --amatista-700: #43234f;
+  --amatista-500: #6b2f78;
+  --amatista-100: #efe8f1;
+
+  /* Teal: color de trabajo (enlaces, estados, datos) */
+  --teal-700: #086375;
+  --teal-600: #0b7a8f;
+
+  /* Turquesa: acción principal y éxito */
+  --turquesa-400: #1dd3b0;
+  --turquesa-300: #5fe3c8;
+  --turquesa-ink: #073b3d;
+
+  /* Menta: fondos claros */
+  --menta-50: #f4fff0;
+  --menta-100: #e3f5ec;
+
+  /* Neutros y estados */
+  --tinta: #2a1630;
+  --tinta-suave: #6b5a70;
+  --linea: #e4dbe7;
+  --blanco: #ffffff;
+  --alerta: #c2410c;
+  --alerta-fondo: #fff1e7;
+  --error: #b42318;
+  --error-fondo: #fdecea;
+
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
+}

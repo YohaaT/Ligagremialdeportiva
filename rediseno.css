@@ -1,25 +1,8 @@
 /* Liga Gremial Deportiva — rediseño 2026.
-   Los colores viven en variables --lgd-*; cada tema solo redefine esas variables. */
+   Los colores viven en variables --lgd-*. */
 
-:root,
-html[data-theme="oliva"] {
-  --lgd-bg: #283618;
-  --lgd-deep: #1a2310;
-  --lgd-mid: #394121;
-  --lgd-glow: #606c38;
-  --lgd-paper: #fefae0;
-  --lgd-paper-2: #f3eccb;
-  --lgd-ink: #283618;
-  --lgd-light: #fefae0;
-  --lgd-accent: #dda15e;
-  --lgd-accent-deep: #bc6c25;
-  --lgd-action-ink: #283618;
-  --lgd-org-1: #bc6c25;
-  --lgd-org-2: #606c38;
-  --lgd-org-3: #394121;
-}
-
-html[data-theme="amatista"] {
+/* Paleta oficial: amatista · teal · turquesa (escala completa en lgd-tokens.css). */
+:root {
   --lgd-bg: #3c1642;
   --lgd-deep: #220a27;
   --lgd-mid: #43234f;
@@ -494,18 +477,6 @@ h1, h2, h3, h4, p { margin: 0; }
 .contact-form .button:disabled, .contact-form.is-sending .button { opacity: .55; cursor: progress; transform: none; }
 .form-status { min-height: 1.4em; font-weight: 600; color: var(--lgd-accent-deep); }
 .form-status.is-error { color: #b42318; }
-
-/* ---------- Selector de tema (temporal, hasta elegir el definitivo) ---------- */
-.theme-picker { position: fixed; z-index: 60; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); font: 600 14px/1.3 var(--font-body); }
-.theme-toggle { display: flex; align-items: center; gap: 10px; padding: 11px 16px; border: 1px solid color-mix(in srgb, var(--lgd-light) 35%, transparent); border-radius: 999px; background: var(--lgd-bg); color: var(--lgd-light); box-shadow: 0 8px 30px #0006; cursor: pointer; font: inherit; }
-.theme-toggle i { width: 16px; height: 16px; border-radius: 50%; background: conic-gradient(var(--lgd-accent) 0 50%, var(--lgd-glow) 0); }
-.theme-options { position: absolute; right: 0; bottom: calc(100% + 10px); width: min(260px, calc(100vw - 32px)); padding: 12px; border: 1px solid color-mix(in srgb, var(--lgd-light) 25%, transparent); border-radius: 18px; background: var(--lgd-bg); color: var(--lgd-light); box-shadow: 0 16px 45px #0008; }
-.theme-options[hidden] { display: none; }
-.theme-options p { margin: 3px 8px 10px; font-size: 12px; opacity: .75; }
-.theme-options p + p, .theme-options button + p { margin-top: 14px; }
-.theme-options button { display: flex; align-items: center; gap: 10px; width: 100%; margin: 2px 0; padding: 11px 12px; border: 0; border-radius: 10px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.theme-options button span { width: 22px; height: 22px; border-radius: 50%; }
-.theme-options button:hover, .theme-options button[aria-pressed="true"] { background: var(--lgd-accent); color: var(--lgd-action-ink); }
 
 /* ---------- Aparición al hacer scroll ---------- */
 .js [data-reveal] { opacity: 0; transform: translateY(28px); transition: opacity .8s var(--ease-out), transform .8s var(--ease-out); transition-delay: var(--d, 0s); }

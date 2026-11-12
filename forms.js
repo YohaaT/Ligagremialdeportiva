@@ -33,7 +33,7 @@ contactForms.forEach((form) => {
 
     try {
       const membershipFiles = payload.topic === "membership" && [formData.get("professionalTitleFile"), formData.get("profilePhotoFile")].some((file) => file && typeof file.arrayBuffer === "function" && file.size);
-      const requestBody = membershipFiles ? (() => { const data=new FormData(); Object.entries(payload).forEach(([key,value])=>data.append(key,Array.isArray(value)?JSON.stringify(value):String(value ?? ""))); ["professionalTitleFile","profilePhotoFile"].forEach((key)=>{const file=formData.get(key);if(file&&typeof file.arrayBuffer==="function"&&file.size)data.append(key,file);}); return data; })() : JSON.stringify(payload);
+      const requestBody = membershipFiles ? (() => { const data=new FormData(); Object.entries(payload).filter(([key])=>!["professionalTitleFile","profilePhotoFile"].includes(key)).forEach(([key,value])=>data.append(key,Array.isArray(value)?JSON.stringify(value):String(value ?? ""))); ["professionalTitleFile","profilePhotoFile"].forEach((key)=>{const file=formData.get(key);if(file&&typeof file.arrayBuffer==="function"&&file.size)data.append(key,file);}); return data; })() : JSON.stringify(payload);
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: membershipFiles ? undefined : { "Content-Type": "application/json" },
@@ -315,18 +315,30 @@ function setupPreRegistrationLookup(form) {
   const start = async () => { const identityDocument=normalizeIdentity(); if (!active || identityDocument.length<5) { documentInput?.reportValidity(); return; } const local=/^(127\.0\.0\.1|localhost)$/i.test(window.location.hostname); const turnstileToken=window.turnstile&&turnstileNode?window.turnstile.getResponse(turnstileNode):""; if(!turnstileToken&&!local){setStatus(copy.captcha,true);return;} search.disabled=true; setStatus(copy.searching); try { const data=await request({action:"start",identityDocument,birthDate:birthDate?.value||"",turnstileToken}); if(data.route==="a"){ if(choices) { choices.replaceChildren(); const note=document.createElement("p"); note.textContent=copy.selectSurname; choices.append(note); data.surnameChoices.forEach((surname)=>{const button=document.createElement("button");button.type="button";button.className="pre-registration-choice";button.textContent=surname;button.addEventListener("click",async()=>{ try{complete(await request({action:"confirm_a",identityDocument,lookupToken:data.lookupToken,surname}));}catch(error){setStatus(error.message,true);}});choices.append(button);}); } } else if(data.route==="b_required"){ root.dataset.preRegistrationLookupToken=data.lookupToken || ""; if(extra) extra.hidden=false; [[extraGuild,data.guildOptions],[extraDiscipline,data.disciplineOptions]].forEach(([control,options])=>{if(!control||!Array.isArray(options))return;control.replaceChildren(new Option(english?"Select":"Seleccionar", ""));options.forEach((value)=>control.add(new Option(value,value)));}); setStatus(copy.extra); } else if(data.route==="birth_date_required") setStatus(copy.birthDate,true); else if(data.route==="existing_request") setStatus(copy.existing); else setStatus(copy.none); } catch(error){setStatus(error.message||copy.error,true);} finally {search.disabled=false;} };
   const confirmB=async()=>{try{const data=await request({action:"confirm_b",identityDocument:normalizeIdentity(),lookupToken:root.dataset.preRegistrationLookupToken||"",lastName:extraSurname?.value||"",guild:extraGuild?.value||"",discipline:extraDiscipline?.value||""}); if(data.match) complete(data); else setStatus(copy.invalid);}catch(error){setStatus(error.message||copy.error,true);}};
   documentInput?.addEventListener("input",()=>{reset();setStatus("");}); birthDate?.addEventListener("change",()=>{reset();setStatus("");}); search?.addEventListener("click",start); extraConfirm?.addEventListener("click",confirmB);
+  // Cédula, tipo de documento y fecha de nacimiento son datos del registro (el servidor los exige);
+  // solo la búsqueda del pre-registro depende de que haya campaña activa.
+  const identityNames = new Set(["identityType", "identityDocument", "birthDate"]);
+  const lookupControls = [search, status, turnstileNode, root.querySelector(".pre-registration-lookup__heading")].filter(Boolean);
+  const lookupResults = [choices, extra, details].filter(Boolean);
+  function applyState() {
+    root.hidden = !active;
+    lookupControls.forEach((node) => { node.hidden = !campaignAvailable; });
+    if (!campaignAvailable) lookupResults.forEach((node) => { node.hidden = true; });
+    root.querySelectorAll("input,select,button,textarea").forEach((control) => {
+      const identity = identityNames.has(control.name);
+      const enabled = identity ? active : active && campaignAvailable;
+      control.disabled = !enabled;
+      if (control.dataset.required === "true") control.required = enabled;
+    });
+  }
   fetch("/api/pre-registration/lookup", { headers:{ Accept:"application/json" } })
     .then((response) => response.ok ? response.json() : null)
-    .then((data) => { if (data && data.active === false) { campaignAvailable = false; root.hidden = true; root.querySelectorAll("input,select,button,textarea").forEach((control) => { control.disabled = true; control.required = false; }); } })
+    .then((data) => { if (data && data.active === false) { campaignAvailable = false; applyState(); } })
     .catch(() => {});
   return {
     setActive(next) {
       active = Boolean(next);
-      root.hidden = !active || !campaignAvailable;
-      root.querySelectorAll("input,select,button,textarea").forEach((control) => {
-        control.disabled = !active || !campaignAvailable;
-        if (control.dataset.required === "true") control.required = active && campaignAvailable;
-      });
+      applyState();
     },
     clear() { reset(); },
     ensure: async () => true
